@@ -1,0 +1,294 @@
+# TRS Kare — Plymouth betiği. Bu dosya uret.py tarafından üretilir, elle düzenleme.
+
+Window.SetBackgroundTopColor (0.757, 0.071, 0.122);
+Window.SetBackgroundBottomColor (0.757, 0.071, 0.122);
+
+siyah = Image ("siyah.png");
+kirmizi = Image ("kirmizi.png");
+
+ekran.x = Window.GetX ();
+ekran.y = Window.GetY ();
+ekran.w = Window.GetWidth ();
+ekran.h = Window.GetHeight ();
+orta.x = ekran.x + ekran.w / 2;
+orta.y = ekran.y + ekran.h / 2;
+
+KENAR = Math.Int (Math.Min (ekran.w, ekran.h) / 12);   # orta karenin kenarı
+GIRIS_EN = KENAR * 4;                                  # giriş kutusunun kareye eklenen eni
+KARE = 26;
+EN_COK = 26;
+
+durum = "normal";
+# Kapatma ve yeniden başlatmada her şey tersine akar
+kip = Plymouth.GetMode ();
+kapanis = 0;
+if (kip == "shutdown" || kip == "reboot")
+  kapanis = 1;
+sayac = 0;              # saniye cinsinden geçen süre (yaklaşık)
+# Giriş kutusu: EN_COK tane bitişik kare sığar; kareler kutunun yarı boyundadır
+NOKTA_BOY = Math.Int (KENAR / 2);
+KUTU_PAY = Math.Int ((KENAR - NOKTA_BOY) / 2);
+KUTU_EN = EN_COK * NOKTA_BOY + 2 * KUTU_PAY;
+hedef_en = KENAR;       # orta kutunun eni: kare iken KENAR, parola istenince KUTU_EN
+kutu_en = KENAR;
+govde_en = 0;
+
+#----------------------------------------- Çekilen kareler ----------------------------
+# bx, by: başlangıç (ekranın oranı) · hx: kutuda vardığı nokta (kutu eninin oranı, -0.5..0.5)
+# boy: başlangıç kenarı (orta karenin katı) · hiz: saniyede tur · faz: döngüdeki yeri
+
+kbx[0] = 0.2370; kby[0] = 0.1873; khx[0] = -0.2405; kboy[0] = 1.879; khiz[0] = 0.2513; kfaz[0] = 0.7523;
+kbx[1] = 0.8319; kby[1] = 0.2880; khx[1] = -0.2302; kboy[1] = 0.750; khiz[1] = 0.2200; kfaz[1] = 0.0483;
+kbx[2] = 0.0924; kby[2] = 0.9169; khx[2] = 0.2435; kboy[2] = 0.726; khiz[2] = 0.2066; kfaz[2] = 0.4840;
+kbx[3] = 0.7120; kby[3] = 0.8695; khx[3] = -0.3466; kboy[3] = 1.589; khiz[3] = 0.2330; kfaz[3] = 0.9018;
+kbx[4] = 0.1562; kby[4] = 0.2272; khx[4] = 0.2741; kboy[4] = 1.540; khiz[4] = 0.2777; kfaz[4] = 0.9548;
+kbx[5] = 0.5830; kby[5] = 0.2257; khx[5] = -0.0051; kboy[5] = 0.467; khiz[5] = 0.3240; kfaz[5] = 0.5062;
+kbx[6] = 0.3458; kby[6] = 0.9322; khx[6] = 0.0535; kboy[6] = 0.609; khiz[6] = 0.3647; kfaz[6] = 0.5893;
+kbx[7] = 0.8701; kby[7] = 0.7567; khx[7] = -0.3794; kboy[7] = 0.859; khiz[7] = 0.2101; kfaz[7] = 0.3584;
+kbx[8] = 0.0237; kby[8] = 0.0326; khx[8] = -0.0073; kboy[8] = 0.734; khiz[8] = 0.2711; kfaz[8] = 0.6116;
+kbx[9] = 0.9490; kby[9] = 0.4116; khx[9] = 0.3213; kboy[9] = 0.998; khiz[9] = 0.2809; kfaz[9] = 0.9822;
+kbx[10] = 0.0857; kby[10] = 0.5944; khx[10] = 0.3952; kboy[10] = 0.575; khiz[10] = 0.1963; kfaz[10] = 0.6847;
+kbx[11] = 0.6065; kby[11] = 0.9677; khx[11] = 0.0699; kboy[11] = 1.408; khiz[11] = 0.3842; kfaz[11] = 0.8797;
+kbx[12] = 0.1321; kby[12] = 0.4436; khx[12] = -0.0002; kboy[12] = 0.637; khiz[12] = 0.3400; kfaz[12] = 0.8444;
+kbx[13] = 0.8038; kby[13] = 0.2730; khx[13] = -0.1383; kboy[13] = 1.272; khiz[13] = 0.3151; kfaz[13] = 0.7253;
+kbx[14] = -0.0174; kby[14] = 0.7841; khx[14] = -0.2954; kboy[14] = 1.047; khiz[14] = 0.2470; kfaz[14] = 0.8619;
+kbx[15] = 0.5813; kby[15] = 1.0173; khx[15] = 0.3844; kboy[15] = 0.533; khiz[15] = 0.1958; kfaz[15] = 0.4432;
+kbx[16] = 0.1037; kby[16] = 0.4465; khx[16] = -0.0810; kboy[16] = 0.862; khiz[16] = 0.2001; kfaz[16] = 0.7689;
+kbx[17] = 0.9106; kby[17] = 0.3596; khx[17] = -0.1951; kboy[17] = 1.303; khiz[17] = 0.2139; kfaz[17] = 0.0635;
+kbx[18] = 0.2779; kby[18] = 0.9004; khx[18] = 0.0686; kboy[18] = 1.359; khiz[18] = 0.2811; kfaz[18] = 0.8166;
+kbx[19] = 0.9197; kby[19] = 0.5139; khx[19] = 0.3731; kboy[19] = 0.486; khiz[19] = 0.2549; kfaz[19] = 0.9022;
+kbx[20] = 0.2599; kby[20] = 0.0306; khx[20] = 0.1418; kboy[20] = 1.722; khiz[20] = 0.2334; kfaz[20] = 0.0748;
+kbx[21] = 0.5637; kby[21] = 0.2423; khx[21] = 0.2606; kboy[21] = 1.587; khiz[21] = 0.3178; kfaz[21] = 0.1799;
+kbx[22] = 0.3072; kby[22] = 0.9336; khx[22] = -0.2351; kboy[22] = 1.205; khiz[22] = 0.2264; kfaz[22] = 0.1037;
+kbx[23] = 0.8442; kby[23] = 0.7537; khx[23] = -0.2689; kboy[23] = 0.825; khiz[23] = 0.2160; kfaz[23] = 0.6758;
+kbx[24] = 0.2668; kby[24] = 0.1969; khx[24] = -0.0333; kboy[24] = 0.610; khiz[24] = 0.3787; kfaz[24] = 0.8183;
+kbx[25] = 0.5773; kby[25] = -0.0270; khx[25] = 0.0632; kboy[25] = 0.587; khiz[25] = 0.1956; kfaz[25] = 0.6475;
+for (i = 0; i < KARE; i++)
+  {
+    kare[i] = Sprite ();
+    kare[i].SetOpacity (0);
+    kson[i] = 0;
+  }
+
+fun kareler_ciz ()
+  {
+    for (k = 0; k < KARE; k++)
+      {
+        u = global.sayac * khiz[k] + kfaz[k];
+        u = u - Math.Int (u);
+        if (kapanis)
+          u = 1 - u;                                   # tersine: kutudan çıkıp dışarı saçılır
+        yak = u * u;                                   # kutuya yakınken hızlı, uzakta yavaş
+        boy = Math.Int (kboy[k] * KENAR * (1 - yak)) + 2;
+        x0 = ekran.x + ekran.w * kbx[k];
+        y0 = ekran.y + ekran.h * kby[k];
+        x = x0 + (orta.x + khx[k] * (global.kutu_en - KENAR / 2) - x0) * yak;
+        y = y0 + (orta.y - y0) * yak;
+        if (boy != global.kson[k])
+          {
+            global.kson[k] = boy;
+            kare[k].SetImage (siyah.Scale (boy, boy));
+          }
+        kare[k].SetPosition (x - boy / 2, y - boy / 2, 10);
+        kare[k].SetOpacity (Math.Min (1, u * 8));      # döngü başında birden belirmesin
+      }
+  }
+
+fun kareler_gizle ()
+  {
+    for (k = 0; k < KARE; k++)
+      kare[k].SetOpacity (0);
+  }
+
+#----------------------------------------- Orta kutu ----------------------------------
+
+govde = Sprite ();
+
+fun govde_ciz ()
+  {
+    genislik = Math.Int (global.kutu_en);
+    if (genislik != global.govde_en)
+      {
+        global.govde_en = genislik;
+        govde.SetImage (siyah.Scale (genislik, KENAR));
+        govde.SetPosition (orta.x - genislik / 2, orta.y - KENAR / 2, 1000);
+      }
+  }
+
+# Her tuş için bir kırmızı kare; aralarında boşluk yoktur, kutu soldan sağa dolar
+nokta_resim = kirmizi.Scale (NOKTA_BOY, NOKTA_BOY);
+nokta_sol = orta.x - KUTU_EN / 2 + KUTU_PAY;
+for (i = 0; i < EN_COK; i++)
+  {
+    nokta[i] = Sprite (nokta_resim);
+    nokta[i].SetPosition (nokta_sol + i * NOKTA_BOY, orta.y - NOKTA_BOY / 2, 1001);
+    nokta[i].SetOpacity (0);
+  }
+
+#----------------------------------------- Karenin içi --------------------------------
+# Yüklenirken orta karenin içinde dışa doğru akan iç içe kareler (siyah/kırmızı sırayla).
+# Büyükten küçüğe üst üste beş dolu kare çizilir; en dıştaki ince siyah kenar hep kalır.
+
+IC = 5;
+IC_KALIN = Math.Int (KENAR / 6);
+IC_SINIR = Math.Int (KENAR / 2) - 3;
+ic_acik = 0;
+for (i = 0; i < IC; i++)
+  {
+    ic[i] = Sprite ();
+    ic[i].SetOpacity (0);
+    icson[i] = 0;
+  }
+
+fun ic_ciz ()
+  {
+    kayma = global.sayac - Math.Int (global.sayac);    # saniyede bir tur
+    if (kapanis)
+      kayma = 1 - kayma;                               # kapanırken içe doğru akar
+    kayma = kayma * 2 * IC_KALIN;
+    for (k = 0; k < IC; k++)
+      {
+        yari = Math.Int (Math.Min (kayma + IC_KALIN * (3 - k), IC_SINIR));
+        if (yari < 1)
+          ic[k].SetOpacity (0);
+        else
+          {
+            if (yari != global.icson[k])
+              {
+                global.icson[k] = yari;
+                if (k - 2 * Math.Int (k / 2) == 0)
+                  ic[k].SetImage (siyah.Scale (2 * yari, 2 * yari));
+                else
+                  ic[k].SetImage (kirmizi.Scale (2 * yari, 2 * yari));
+              }
+            ic[k].SetPosition (orta.x - yari, orta.y - yari, 1002 + k);
+            ic[k].SetOpacity (1);
+          }
+      }
+    global.ic_acik = 1;
+  }
+
+fun ic_gizle ()
+  {
+    if (global.ic_acik)
+      {
+        for (k = 0; k < IC; k++)
+          ic[k].SetOpacity (0);
+        global.ic_acik = 0;
+      }
+  }
+
+yazi = Sprite ();
+yazi.SetOpacity (0);
+
+fun yazi_goster (metin)
+  {
+    if (metin)
+      {
+        resim = Image.Text (metin, 0, 0, 0);
+        yazi.SetImage (resim);
+        yazi.SetPosition (orta.x - resim.GetWidth () / 2, orta.y + KENAR, 1001);
+        yazi.SetOpacity (1);
+      }
+    else
+      yazi.SetOpacity (0);
+  }
+
+#----------------------------------------- Döngü --------------------------------------
+
+fun yenile ()
+  {
+    global.sayac += 0.02;                              # saniyede 50 çizim
+    # kare ile giriş kutusu arasında yumuşak geçiş
+    global.kutu_en += (global.hedef_en - global.kutu_en) * 0.18;
+    if (global.hedef_en - global.kutu_en < 1 && global.kutu_en - global.hedef_en < 1)
+      global.kutu_en = global.hedef_en;
+    govde_ciz ();
+    if (global.durum != "normal" || kapanis)
+      kareler_ciz ();
+    # iç içe kareler yalnızca yüklenirken ve kutu yeniden kare olduğunda görünür
+    if (global.durum == "normal" && global.kutu_en == KENAR)
+      ic_ciz ();
+    else
+      ic_gizle ();
+  }
+
+Plymouth.SetRefreshFunction (yenile);
+
+#----------------------------------------- Durumlar -----------------------------------
+
+fun normal_goster ()
+  {
+    global.durum = "normal";
+    global.hedef_en = KENAR;
+    if (!kapanis)
+      kareler_gizle ();
+    for (i = 0; i < EN_COK; i++)
+      nokta[i].SetOpacity (0);
+    yazi.SetOpacity (0);
+  }
+
+fun parola_goster (istem, nokta_sayisi)
+  {
+    global.durum = "parola";
+    global.hedef_en = KUTU_EN;
+    for (i = 0; i < EN_COK; i++)
+      {
+        if (i < nokta_sayisi)
+          nokta[i].SetOpacity (1);
+        else
+          nokta[i].SetOpacity (0);
+      }
+    yazi_goster (istem);
+  }
+
+fun soru_goster (istem, girilen)
+  {
+    global.durum = "soru";
+    global.hedef_en = KUTU_EN;
+    for (i = 0; i < EN_COK; i++)
+      nokta[i].SetOpacity (0);
+    yazi_goster (istem + " " + girilen);
+  }
+
+Plymouth.SetDisplayNormalFunction (normal_goster);
+Plymouth.SetDisplayPasswordFunction (parola_goster);
+Plymouth.SetDisplayQuestionFunction (soru_goster);
+
+#----------------------------------------- İletiler -----------------------------------
+
+ileti = Sprite ();
+
+fun ileti_goster (metin)
+  {
+    resim = Image.Text (metin, 0, 0, 0);
+    ileti.SetImage (resim);
+    ileti.SetPosition (orta.x - resim.GetWidth () / 2, ekran.y + ekran.h * 0.9, 1001);
+    ileti.SetOpacity (1);
+  }
+
+fun ileti_gizle (metin)
+  {
+    ileti.SetOpacity (0);
+  }
+
+Plymouth.SetDisplayMessageFunction (ileti_goster);
+Plymouth.SetHideMessageFunction (ileti_gizle);
+
+#----------------------------------------- Güncelleme ilerlemesi ----------------------
+
+cubuk = Sprite ();
+cubuk_en = 0;
+
+fun guncelleme (yuzde)
+  {
+    en = Math.Int (GIRIS_EN * yuzde / 100);
+    if (en >= 1 && en != global.cubuk_en)
+      {
+        global.cubuk_en = en;
+        cubuk.SetImage (siyah.Scale (en, Math.Max (2, Math.Int (KENAR / 16))));
+        cubuk.SetPosition (orta.x - GIRIS_EN / 2, ekran.y + ekran.h * 0.8, 1001);
+      }
+  }
+
+Plymouth.SetSystemUpdateFunction (guncelleme);

@@ -1,0 +1,14 @@
+[Unit]
+Description=TRS: kapanış animasyonu sırasında çıkış sesini çal
+DefaultDependencies=no
+# Oturum (ses sunucusu) kapandıktan ve kapanış ekranı geldikten sonra, sistem durmadan önce
+After=user@1000.service plymouth-poweroff.service plymouth-reboot.service plymouth-halt.service
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/trs-kapanis-sesi
+TimeoutStartSec=6
+
+[Install]
+WantedBy=poweroff.target reboot.target halt.target

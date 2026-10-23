@@ -1,0 +1,24 @@
+#!/bin/sh
+# Kapanış animasyonu (Plymouth) ekrandayken çıkış sesini çalar. ROOT olarak, sistem kapanırken çalışır.
+# O anda oturum ve ses sunucusu kapanmıştır; bu yüzden ses kartına doğrudan (ALSA) çalınır.
+# Kullanıcının sesi kapalı mı: oturumdaki trs-kapanis-sesi servisi kapanma isteği anında
+# aşağıdaki dosyaya yazar. Dosya yoksa, eskiyse ya da "çalma" diyorsa ses çalınmaz (sessiz mod korunur).
+# Dosya kullanıcının evinde olduğu için yalnızca OKUNUR ve katı biçimde doğrulanır; içinden komut çalıştırılmaz.
+DURUM=/home/trs/.local/state/trs-kapanis-durum
+SES_DOSYASI=/usr/local/share/trs/kapanis.wav
+
+[ -f "$DURUM" ] && [ ! -L "$DURUM" ] || exit 0
+YAS=$(( $(date +%s) - $(stat -c %Y "$DURUM") ))
+[ "$YAS" -ge 0 ] && [ "$YAS" -le 120 ] || exit 0
+grep -qx 'cal=1' "$DURUM" || exit 0
+
+# Ses sunucusu kapanınca kart çıkışları kapalı kalır (ve giriş ekranı servisi son anda susturmuş
+# olabilir): çıkış anahtarlarını aç. Ses DÜZEYİNE dokunulmaz; kart kullanıcının son düzeyinde kalır.
+amixer -q -c 0 sset Master unmute 2>/dev/null
+amixer -q -c 0 sset Speaker unmute 2>/dev/null
+amixer -q -c 0 sset Headphone unmute 2>/dev/null
+sleep 0.3
+for AYGIT in plughw:0,0 plughw:0,31; do
+  aplay -q -D "$AYGIT" "$SES_DOSYASI" 2>/dev/null && break
+done
+exit 0

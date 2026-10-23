@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=TRS Kare
+Description=Red background; black squares shrink into the password box.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/trs-kare
+ScriptFile=/usr/share/plymouth/themes/trs-kare/trs-kare.script
